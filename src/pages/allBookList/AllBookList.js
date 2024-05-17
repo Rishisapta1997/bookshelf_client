@@ -4,6 +4,7 @@ import { DotLoader } from 'react-spinners';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { BASE_URI } from '../../config/app_uri';
+import styles from './Style';
 
 const AllBookList = ({ navigate }) => {
     const [allBookArr, setAllBookArr] = useState([]);
@@ -36,8 +37,44 @@ const AllBookList = ({ navigate }) => {
         navigate(`/get-book/${item._id}`, { selectedData: item });
     };
 
-    const onDeleteBook = (item) => {
-
+    const onDeleteBook = async (item, index) => {
+        try {
+            // setPageLoader(true);
+            const responseData = await axios.delete(`${BASE_URI}books/delete-book/${item._id}`);
+            console.log("responseData", responseData);
+            if (responseData && responseData.data) {
+                if (responseData.data.statusCode === 200) {
+                    const updatedBooks = [...allBookArr];
+                    updatedBooks.splice(index, 1);
+                    setAllBookArr(updatedBooks);
+                    toast.success(responseData.data.message, {
+                        position: "top-center",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                    // navigate("/");
+                } else {
+                    toast.warn(responseData.data.message, {
+                        position: "top-center",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error Updating book:', error);
+            toast.error('Failed to Update book');
+        } finally {
+            // setPageLoader(false);
+        }
     }
 
     const onAddBook = () => {
@@ -45,62 +82,22 @@ const AllBookList = ({ navigate }) => {
     }
 
     return (
-        <div className="all-books-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '20px',
-                    width: '100%', // Ensure it takes the full width of the screen
-                    boxSizing: 'border-box'
-                }}
-            >
+        <div className="all-books-container" style={styles.mainContainer}>
+            <div style={styles.subMainContainer}>
                 <div>
-                    <h1
-                        style={{
-                            fontSize: '35px',
-                            color: '#212121',
-                            fontFamily: 'Poppins, Arial, sans-serif',
-                            marginBottom: '10px'
-                        }}
-                    >
-                        Welcome to your Bookshelf
-                    </h1>
-                    <h1
-                        style={{
-                            fontSize: '15px',
-                            color: '#686868',
-                            fontFamily: 'Poppins, Arial, sans-serif',
-                            marginBottom: '50px'
-                        }}
-                    >
-                        Browse your book - gain knowledge
-                    </h1>
+                    <div style={styles.mainHeadingDiv}>
+                        <img src='/bookshelf-logo.png' alt='Bookshelf-Logo' style={styles.logoImg} />
+                        <div style={{ marginLeft: '20px' }}>
+                            <h1 style={styles.pageTitle}>Welcome to your Bookshelf</h1>
+                            <h1 style={styles.pageSubTitle}>Browse your book - gain knowledge</h1>
+                        </div>
+                    </div>
                 </div>
-                <div
-                    style={{
-                        height: '40px',
-                        display: 'flex',
-                        alignItems: 'center',
-                    }}
-                >
+                <div style={styles.addBtnDiv}>
                     <button
                         onClick={() => onAddBook()}
                         type="submit"
-                        style={{
-                            background: '#1F2B4D',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '20px',
-                            width: '200px',
-                            height: '100%',
-                            fontFamily: 'Poppins, Arial, sans-serif',
-                            cursor: 'pointer',
-                            fontSize: '18px',
-                            transition: 'background 0.3s, color 0.3s'
-                        }}
+                        style={styles.editBtn}
                         onMouseOver={(e) => {
                             e.target.style.background = 'white';
                             e.target.style.color = '#FF4500';
@@ -108,38 +105,34 @@ const AllBookList = ({ navigate }) => {
                         onMouseOut={(e) => {
                             e.target.style.background = '#1F2B4D';
                             e.target.style.color = 'white';
-                        }}
-                    >
-                        + Add Book
-                    </button>
+                        }}>+ Add Book</button>
                 </div>
             </div>
             {pageLoader ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+                <div style={styles.loaderDiv}>
                     <DotLoader color="#212121" loading={pageLoader} size={60} />
                 </div>
             ) : (
                 <div>
                     <ToastContainer />
                     {allBookArr && allBookArr.length > 0 ? (
-                        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={styles.cardContainer}>
                             {allBookArr.map((item, index) => (
-                                <div style={{ border: '1px solid #d3d3d3', borderRadius: '15px', padding: '20px', boxSizing: 'border-box', width: '350px', boxShadow: '8px 8px 8px rgba(0, 0, 0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', backgroundColor: "#F2F3F4" }} key={index} >
-                                    <h3 style={{ fontSize: '25px', color: '#212121', fontFamily: 'Poppins, Arial, sans-serif' }}>{item.title}</h3>
-                                    <div style={{ display: 'flex', marginBottom: '0' }}>
-                                        <p style={{ fontSize: '17px', color: '#212121', marginRight: '10px', fontFamily: 'Poppins, Arial, sans-serif', fontWeight: 'bold' }}>Author:</p>
-                                        <p style={{ fontSize: '17px', color: '#686868', marginBottom: '0', fontFamily: 'Poppins, Arial, sans-serif' }}>{item.author}</p>
+                                <div style={styles.cardSubContainer} key={index} >
+                                    <h3 style={styles.cardHeading}>{item.title}</h3>
+                                    <div style={styles.authorDiv}>
+                                        <p style={styles.labelTxt}>Author:</p>
+                                        <p style={styles.authorTxt}>{item.author}</p>
                                     </div>
-                                    <div style={{ display: 'flex', marginBottom: '10px' }}>
-                                        <p style={{ fontSize: '17px', color: '#212121', marginRight: '10px', fontFamily: 'Poppins, Arial, sans-serif', fontWeight: 'bold' }}>Published Year:</p>
-                                        <p style={{ fontSize: '17px', color: '#686868', fontFamily: 'Poppins, Arial, sans-serif' }}>{item.publishedYear}</p>
+                                    <div style={styles.pyDiv}>
+                                        <p style={styles.labelTxt}>Published Year:</p>
+                                        <p style={styles.pyTxt}>{item.publishedYear}</p>
                                     </div>
-                                    <div style={{ display: 'flex' }}>
-                                        {/* <div style={{ marginBottom: '10px', height: '20px', width: '100px', borderRadius: '20px', padding: '10px', background: '#FF4500', marginRight: '20px' }}> */}
+                                    <div style={styles.buttonDiv}>
                                         <button
-                                            onClick={() => onDeleteBook(item)}
+                                            onClick={() => onDeleteBook(item, index)}
                                             type="submit"
-                                            style={{ background: '#FF4500', color: 'white', border: 'none', borderRadius: '20px', width: '150px', height: '35px', fontFamily: 'Poppins, Arial, sans-serif', cursor: 'pointer', fontSize: '15px', marginRight: '10px' }}
+                                            style={styles.deleteBtn}
                                             onMouseOver={(e) => {
                                                 e.target.style.background = 'white';
                                                 e.target.style.color = '#FF4500';
@@ -147,16 +140,11 @@ const AllBookList = ({ navigate }) => {
                                             onMouseOut={(e) => {
                                                 e.target.style.background = '#FF4500';
                                                 e.target.style.color = 'white';
-                                            }}
-                                        >
-                                            Delete
-                                        </button>
-                                        {/* </div> */}
-                                        {/* <div style={{ marginBottom: '10px', height: '20px', width: '100px', borderRadius: '20px', padding: '10px', background: '#1F2B4D' }}> */}
+                                            }}>Delete</button>
                                         <button
                                             onClick={() => onEditBook(item)}
                                             type="submit"
-                                            style={{ background: '#1F2B4D', color: 'white', border: 'none', borderRadius: '20px', width: '150px', height: '35px', fontFamily: 'Poppins, Arial, sans-serif', cursor: 'pointer', fontSize: '15px', marginLeft: '10px' }}
+                                            style={styles.editBtn}
                                             onMouseOver={(e) => {
                                                 e.target.style.background = 'white';
                                                 e.target.style.color = '#FF4500';
@@ -164,22 +152,18 @@ const AllBookList = ({ navigate }) => {
                                             onMouseOut={(e) => {
                                                 e.target.style.background = '#1F2B4D';
                                                 e.target.style.color = 'white';
-                                            }}
-                                        >
-                                            Edit
-                                        </button>
-                                        {/* </div> */}
-
+                                            }}>Edit</button>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <h2 style={{ fontSize: '30px', color: '#212121' }}>No Data Found</h2>
+                        <div style={styles.noDataDiv}>
+                            <img src="/no-data-found.png" alt="No-Data-Found" style={styles.noDataImg} />
+                            <h2 style={styles.noDataTxt}>No Data Found</h2>
+                        </div>
                     )}
                 </div>
-
-
             )}
         </div>
     );
