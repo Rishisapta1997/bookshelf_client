@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { BASE_URI } from '../../config/app_uri';
-import { ToastContainer, toast } from 'react-toastify';
 import { DotLoader } from 'react-spinners';
+import { toast, ToastContainer } from 'react-toastify';
+import { BASE_URI } from '../../config/app_uri';
+import styles from './Style';
 
 let bookObj = {
   title: "",
@@ -36,8 +37,49 @@ const BookDetails = ({ navigate }) => {
     }
   };
 
-  const onUpdateBook = () => {
-    navigate("/");
+  const onUpdateBook = async (e) => {
+    console.log("reqDatatat---", id)
+    e.preventDefault();
+
+    let reqData = {
+      title: book.title,
+      author: book.author,
+      publishedYear: book.publishedYear
+    };
+    // setPageLoader(true);
+    try {
+      const responseData = await axios.put(`${BASE_URI}books/update-book/${id}`, reqData);
+      console.log("responseData", responseData);
+      if (responseData && responseData.data) {
+        if (responseData.data.statusCode === 200) {
+          toast.success(responseData.data.message, {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          navigate("/");
+        } else {
+          toast.warn(responseData.data.message, {
+            position: "top-center",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error Updating book:', error);
+      toast.error('Failed to Update book');
+    } finally {
+      // setPageLoader(false);
+    }
   }
 
   const onChangeTitle = (e) => {
@@ -60,90 +102,57 @@ const BookDetails = ({ navigate }) => {
   }
 
   return (
-    <div className="all-books-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-      <h1 style={{ fontSize: '35px', color: '#212121', fontFamily: 'Poppins, Arial, sans-serif', marginBottom: '10px' }}>Welcome to your Bookshelf</h1>
-      <h1 style={{ fontSize: '15px', color: '#686868', fontFamily: 'Poppins, Arial, sans-serif', marginBottom: '50px' }}>Browse your book - gain knowledge</h1>
+    <div className="all-books-container" style={styles.mainContainer}>
+      <img src='/bookshelf-logo.png' alt='Bookshelf-Logo' style={styles.logoImg} />
+      <h1 style={styles.pageTitle}>Welcome to your Bookshelf</h1>
+      <h1 style={styles.pageSubTitle}>Browse your book - gain knowledge</h1>
       {pageLoader ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div style={styles.loaderDiv}>
           <DotLoader color="#212121" loading={pageLoader} size={60} />
         </div>
       ) : (
         <div>
           <ToastContainer />
-          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: '20px', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ border: '1px solid #d3d3d3', borderRadius: '15px', padding: '20px', boxSizing: 'border-box', width: '500px', boxShadow: '8px 8px 8px rgba(0, 0, 0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', backgroundColor: "#F2F3F4" }} >
-              <h3 style={{ fontSize: '25px', color: '#212121', fontFamily: 'Poppins, Arial, sans-serif' }}>Update Book - {book.title}</h3>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ marginBottom: '15px', alignItems: 'flex-start', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '17px', color: '#212121', marginRight: '10px', fontFamily: 'Poppins, Arial, sans-serif', fontWeight: 'bold', marginBottom: '10px', marginLeft: '10px' }}>Title:</label>
+          <div style={styles.cardContainer}>
+            <div style={styles.cardSubContainer} >
+              <h3 style={styles.cardHeading}>Update Book - {book.title}</h3>
+              <div style={styles.inputDiv}>
+                <div style={styles.inputBoxDiv}>
+                  <label style={styles.inputLabel}>Title:</label>
                   <input
                     type="text"
                     name="title"
                     value={book.title}
                     onChange={onChangeTitle}
-                    style={{
-                      padding: '10px',
-                      borderRadius: '25px',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                      border: '1px solid #d3d3d3',
-                      fontFamily: 'Poppins, Arial, sans-serif',
-                      fontSize: '17px',
-                      width: '100%', // Adjust the width as necessary
-                      boxSizing: 'border-box', // Ensure padding and border are included in the element's total width and height
-                      outline: 'none',
-                      width: '400px'
-                    }}
+                    style={styles.inputBox}
                   />
                 </div>
-                <div style={{ marginBottom: '15px', alignItems: 'flex-start', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '17px', color: '#212121', marginRight: '10px', fontFamily: 'Poppins, Arial, sans-serif', fontWeight: 'bold', marginBottom: '10px', marginLeft: '10px' }}>Author:</label>
+                <div style={styles.inputBoxDiv}>
+                  <label style={styles.inputLabel}>Author:</label>
                   <input
                     type="text"
                     name="Author"
                     value={book.author}
                     onChange={onChangeAuthor}
-                    style={{
-                      padding: '10px',
-                      borderRadius: '25px',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                      border: '1px solid #d3d3d3',
-                      fontFamily: 'Poppins, Arial, sans-serif',
-                      fontSize: '17px',
-                      width: '100%', // Adjust the width as necessary
-                      boxSizing: 'border-box', // Ensure padding and border are included in the element's total width and height
-                      outline: 'none',
-                      width: '400px'
-                    }}
+                    style={styles.inputBox}
                   />
                 </div>
-                <div style={{ marginBottom: '15px', alignItems: 'flex-start', justifyContent: 'flex-start', display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '17px', color: '#212121', marginRight: '10px', fontFamily: 'Poppins, Arial, sans-serif', fontWeight: 'bold', marginBottom: '10px', marginLeft: '10px' }}>Published Year:</label>
+                <div style={styles.inputBoxDiv}>
+                  <label style={styles.inputLabel}>Published Year:</label>
                   <input
                     type="number"
                     name="Published Year"
                     value={book.publishedYear}
                     onChange={onChangePublishedYear}
-                    style={{
-                      padding: '10px',
-                      borderRadius: '25px',
-                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                      border: '1px solid #d3d3d3',
-                      fontFamily: 'Poppins, Arial, sans-serif',
-                      fontSize: '17px',
-                      width: '100%', // Adjust the width as necessary
-                      boxSizing: 'border-box', // Ensure padding and border are included in the element's total width and height
-                      outline: 'none',
-                      width: '400px'
-                    }}
+                    style={styles.inputBox}
                   />
                 </div>
               </div>
-              <div style={{ display: 'flex', marginTop: '15px', marginBottom: '15px' }}>
-                {/* <div style={{ marginBottom: '10px', height: '20px', width: '100px', borderRadius: '20px', padding: '10px', background: '#FF4500', marginRight: '20px' }}> */}
+              <div style={styles.buttonDiv}>
                 <button
                   onClick={() => onNavigateToDashboard()}
                   type="submit"
-                  style={{ background: '#FF4500', color: 'white', border: 'none', borderRadius: '20px', width: '150px', height: '35px', fontFamily: 'Poppins, Arial, sans-serif', cursor: 'pointer', fontSize: '15px', marginRight: '10px' }}
+                  style={styles.navigateBtn}
                   onMouseOver={(e) => {
                     e.target.style.background = 'white';
                     e.target.style.color = '#FF4500';
@@ -151,16 +160,11 @@ const BookDetails = ({ navigate }) => {
                   onMouseOut={(e) => {
                     e.target.style.background = '#FF4500';
                     e.target.style.color = 'white';
-                  }}
-                >
-                  Go to Dashboard
-                </button>
-                {/* </div> */}
-                {/* <div style={{ marginBottom: '10px', height: '20px', width: '100px', borderRadius: '20px', padding: '10px', background: '#1F2B4D' }}> */}
+                  }}>Go to Dashboard</button>
                 <button
-                  onClick={() => onUpdateBook()}
+                  onClick={(e) => onUpdateBook(e)}
                   type="submit"
-                  style={{ background: '#1F2B4D', color: 'white', border: 'none', borderRadius: '20px', width: '150px', height: '35px', fontFamily: 'Poppins, Arial, sans-serif', cursor: 'pointer', fontSize: '15px', marginLeft: '10px' }}
+                  style={styles.updateBtn}
                   onMouseOver={(e) => {
                     e.target.style.background = 'white';
                     e.target.style.color = '#FF4500';
@@ -168,12 +172,7 @@ const BookDetails = ({ navigate }) => {
                   onMouseOut={(e) => {
                     e.target.style.background = '#1F2B4D';
                     e.target.style.color = 'white';
-                  }}
-                >
-                  Update Book
-                </button>
-                {/* </div> */}
-
+                  }}>Update Book</button>
               </div>
 
             </div>
