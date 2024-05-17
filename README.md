@@ -3,6 +3,9 @@
 Bookshelf is a webiste with basic CRUD operation which create books, getting all the books and a single book by the id, editing or updating any book, deleting any book.
 In this application I have used Javascript as a programming language, React as a Framework, axios for API calling
 
+# Preview
+https://github.com/Rishisapta1997/bookshelf_client/assets/169823484/0628f7ef-39c1-4ba9-9a1e-1bd7cac0fc1a
+
 # Project Structure
 --> Basically, in the root project directory, we have node_modules, public, src, .gitignore, package.json, package-lock.json
 --> src
